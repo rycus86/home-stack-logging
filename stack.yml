@@ -1,0 +1,95 @@
+version: '3.5'
+services:
+
+  elasticsearch:
+    image: registry.viktoradam.net/private/elasticsearch:6.0.0
+    deploy:
+      replicas: 1
+      placement:
+        # needs to be constrained to run on the Rock64 node for the moment
+        constraints:
+          - node.labels.memory == high
+          - node.hostname == rock64
+    configs:
+      - source: es-config
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+      - source: es-jvm-options
+        target: /usr/share/elasticsearch/config/jvm.options
+    ports:
+      - 9200:9200
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data:nocopy
+    logging:
+      driver: json-file
+      options:
+        max-size: 25m
+        max-file: 4
+
+  kibana:
+    image: registry.viktoradam.net/private/kibana:6.0.0
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 200M
+      # TODO /etc/auth-config should change when the routing stack gets updated
+      labels:
+        - routing-auth-realm=Kibana Logs
+        - routing-auth=/etc/auth-config/kibana.auth.conf
+        - routing-host=logs.viktoradam.net
+        - routing-port=5601
+    networks:
+      - default
+      - legacy
+    ports:
+      - 5601:5601
+    logging:
+      driver: json-file
+      options:
+        max-size: 25m
+        max-file: 4
+
+  fluentd:
+    image: registry.viktoradam.net/private/fluentd:v1.0
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 100M
+    configs:
+      - source: fluent-config
+        target: /fluentd/etc/fluent.conf
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+    environment:
+      - RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=0.8
+    logging:
+      driver: json-file
+      options:
+        max-size: 25m
+        max-file: 4
+
+configs:
+  es-config:
+    name: elasticsearch-config-${ELASTICSEARCH_YML}
+    file: ./config/elasticsearch.yml
+  es-jvm-options:
+    name: elasticsearch-jvm-options-${ELASTICSEARCH_JVM_OPTIONS}
+    file: ./config/elasticsearch.jvm.options
+  fluent-config:
+    name: fluent-config-${FLUENT_CONFIG}
+    file: ./config/fluent.config
+
+volumes:
+  elasticsearch-data:
+    driver: local
+    driver_opts:
+      type: nfs4
+      device: :/elasticsearch-data
+      o: addr=192.168.0.52,rsize=8192,wsize=8192,timeo=15,hard,intr
+
+networks:
+  legacy:
+    name: home-legacy
+    external: true

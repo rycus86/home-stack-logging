@@ -1,0 +1,5 @@
+http.host: 0.0.0.0
+transport.host: 127.0.0.1
+
+# Uncomment the following lines for a production cluster deployment
+#discovery.zen.minimum_master_nodes: 1
