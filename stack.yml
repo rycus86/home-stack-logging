@@ -34,13 +34,13 @@ services:
           memory: 200M
       # TODO /etc/auth-config should change when the routing stack gets updated
       labels:
-        - routing-auth-realm=Kibana Logs
-        - routing-auth=/etc/auth-config/kibana.auth.conf
-        - routing-host=logs.viktoradam.net
-        - routing-port=5601
+        routing-auth-realm: Kibana Logs
+        routing-auth: /etc/auth-config/kibana.auth.conf
+        routing-host: logs.viktoradam.net
+        routing-port: 5601
     networks:
       - default
-      - legacy
+      - web
     ports:
       - 5601:5601
     logging:
@@ -90,6 +90,6 @@ volumes:
       o: addr=192.168.0.52,rsize=8192,wsize=8192,timeo=15,hard,intr
 
 networks:
-  legacy:
-    name: home-legacy
+  web:
+    name: home-web
     external: true
