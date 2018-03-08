@@ -1,0 +1,21 @@
+@startuml
+
+frame "Logging stack" as stack {
+    [Elasticsearch] << private/elasticsearch >> as es #8f8
+    [Kibana] << private/kibana >> as kibana #8fc
+    [Fluentd] << private/fluentd >> as fluentd #8fc
+}
+
+frame "Web stack" as web_stack {
+    [Nginx reverse proxy] << nginx >> as nginx #ccc
+}
+
+frame "Other stacks" as others #ccc
+
+nginx --> kibana : logs.viktoradam.net
+kibana --> es : Visualization
+es <-- fluentd : Send logs
+
+fluentd <-- others : Collect logs
+
+@enduml
