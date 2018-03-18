@@ -25,6 +25,27 @@ services:
         max-size: 25m
         max-file: 4
 
+  elasticsearch-cleaner:
+    image: rycus86/elasticsearch-cleaner
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 50M
+    environment:
+      - BASE_URL=http://elasticsearch:9200
+      - PATTERN=fluentd
+      - MAX_INDICES=14
+      - INTERVAL=10h
+      - TIMEOUT=1m
+    logging:
+      driver: fluentd
+      options:
+        tag: app.elasticsearch.cleaner
+        fluentd-address: 192.168.0.52:24224
+        fluentd-async-connect: 'true'
+        fluentd-sub-second-precision: 'true'
+
   kibana:
     image: registry.viktoradam.net/private/kibana:6.0.0
     deploy:

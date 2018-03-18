@@ -4,6 +4,7 @@ frame "Logging stack" as stack {
     [Elasticsearch] << private/elasticsearch >> as es #8f8
     [Kibana] << private/kibana >> as kibana #8fc
     [Fluentd] << private/fluentd >> as fluentd #8fc
+    [Elasticsearch cleaner] << rycus86/elasticsearch-cleaner >> as es_cleaner #fa8
 }
 
 frame "Web stack" as web_stack {
@@ -15,6 +16,7 @@ frame "Other stacks" as others #ccc
 nginx --> kibana : logs.viktoradam.net
 kibana --> es : Visualization
 es <-- fluentd : Send logs
+es <-- es_cleaner : Remove old logs
 
 fluentd <-- others : Collect logs
 
