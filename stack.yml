@@ -35,7 +35,7 @@ services:
     environment:
       - BASE_URL=http://elasticsearch:9200
       - PATTERN=fluentd
-      - MAX_INDICES=14
+      - MAX_INDICES=7
       - INTERVAL=10h
       - TIMEOUT=1m
     logging:
