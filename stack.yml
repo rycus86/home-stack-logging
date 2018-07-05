@@ -55,7 +55,7 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: 96M
+          memory: 128M
       # TODO /etc/auth-config should change when the routing stack gets updated
       labels:
         routing-auth-realm: Kibana Logs
